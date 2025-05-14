@@ -154,7 +154,8 @@
               {{ userInfo.username }}
             </a>
           </li>
-          <li ui-sref-active="{ active: 'settings.**' }" ng-show="userInfo.username != 'guest'">
+          <li ui-sref-active="{ active: 'settings.**' }">
+            <!-- TODO1: guest can also use settings/account to add account -->
             <a href="#/settings/account">
               <span class="fas fa-cog"></span> {{ 'index.nav_settings' | translate }}
             </a>

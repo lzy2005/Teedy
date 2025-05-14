@@ -39,7 +39,7 @@ angular.module('docs').controller('SettingsUserEdit', function($scope, $dialog, 
       promise = Restangular
         .one('user')
         .put(user);
-    }
+    }//TODO1: create user frontend put
     
     promise.then(function () {
       $scope.loadUsers();
