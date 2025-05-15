@@ -9,7 +9,14 @@ angular.module('docs').controller('FileModalView', function ($uibModalInstance, 
     _.each(files, function (value) {
       if (value.id === $stateParams.fileId) {
         $scope.file = value;
+        // if (value.mimetype === 'application/pdf'){
         $scope.trustedFileUrl = $sce.trustAsResourceUrl('../api/file/' + $stateParams.fileId + '/data');
+        // }
+        // if (value.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        //   console.log(window.location.origin);
+        //   console.log($stateParams.fileId);
+        //   $scope.trustedDocxUrl = $sce.trustAsResourceUrl('../api/file/' + $stateParams.fileId + '/data?size=web');
+        // }
       }
     });
   };
@@ -122,5 +129,37 @@ angular.module('docs').controller('FileModalView', function ($uibModalInstance, 
    */
   $scope.canDisplayPreview = function () {
     return $scope.file && $scope.file.mimetype !== 'application/pdf';
+  };
+
+  /**
+   * Load the content of a .txt file.
+   */
+  $scope.loadTxtContent = function(fileId) {
+    Restangular.one('file/' + fileId + '/data').get().then(function(response) {
+      $scope.txtContent = response;
+    });
+  };
+
+  /**
+   * Save the content of a .txt file.
+   */
+  $scope.saveTxtContent = function() {
+    var formData = new FormData();
+    formData.append('content', $scope.txtContent);
+
+    $.ajax({
+      type: 'PUT',
+      url: '../api/file/' + $stateParams.fileId + '/data',
+      data: formData,
+      cache: false,
+      contentType: false,
+      processData: false,
+      success: function() {
+        $scope.alerts.push({ type: 'success', msg: $translate.instant('document.edit.txt_saved') });
+      },
+      error: function() {
+        $scope.alerts.push({ type: 'danger', msg: $translate.instant('document.edit.txt_save_error') });
+      }
+    });
   };
 });

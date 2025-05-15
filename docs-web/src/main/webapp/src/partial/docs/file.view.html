@@ -52,6 +52,12 @@
   <!-- PDF viewer -->
   <iframe ng-src="{{ trustedFileUrl }}" class="pdf-viewer" scrolling="yes" ng-if="!error && file.mimetype == 'application/pdf'"></iframe>
 
+  <!-- DOCX editor
+  <img ng-src="../api/file/{{ $stateParams.fileId }}/data?size=web"
+       ng-init="error = false"
+       img-error="error = true"
+       ng-show="!error && file.mimetype == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'" /> -->
+
   <!-- File not found -->
   <p class="well-lg" ng-show="error">
     <span class="fas fa-exclamation-triangle"></span>
