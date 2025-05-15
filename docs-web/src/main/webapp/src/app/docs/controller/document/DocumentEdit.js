@@ -247,32 +247,14 @@ angular.module('docs').controller('DocumentEdit', function($rootScope, $scope, $
   /**
    * Load the content of a .txt file.
    */
-  $scope.loadTxtContent = function(fileId) {
-    Restangular.one('file', fileId).get().then(function(data) {
-      $scope.txtContent = data.content;
-    });
-  };
-
-  /**
-   * Save the content of a .txt file.
-   */
-  $scope.saveTxtContent = function() {
-    var formData = new FormData();
-    formData.append('content', $scope.txtContent);
-
-    $.ajax({
-      type: 'PUT',
-      url: '../api/file/' + $scope.document.file.id + '/data',
-      data: formData,
-      cache: false,
-      contentType: false,
-      processData: false,
-      success: function() {
-        $scope.alerts.push({ type: 'success', msg: $translate.instant('document.edit.txt_saved') });
-      },
-      error: function() {
-        $scope.alerts.push({ type: 'danger', msg: $translate.instant('document.edit.txt_save_error') });
-      }
+  $scope.loadContent = function(fileId) {
+    Restangular.one('file/' + fileId + '/data').get({ size: 'content' }).then(function(data) {
+      $scope.txtContent = data; // FileResource.java returns raw text content for 'content' size
+    }, function(error) {
+      $scope.alerts.unshift({
+        type: 'danger',
+        msg: $translate.instant('document.edit.load_txt_error') + ': ' + error.statusText
+      });
     });
   };
 
@@ -282,9 +264,7 @@ angular.module('docs').controller('DocumentEdit', function($rootScope, $scope, $
   if ($scope.isEdit()) {
     Restangular.one('document', $stateParams.id).get().then(function(data) {
       $scope.document = data;
-      if (data.file && data.file.mimetype === 'text/plain') {
-        $scope.loadTxtContent(data.file.id);
-      }
+      $scope.loadContent(data.file_id);
     });
   } else {
     $scope.resetForm();
