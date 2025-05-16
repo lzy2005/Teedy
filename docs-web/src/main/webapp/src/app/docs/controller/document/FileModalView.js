@@ -9,14 +9,7 @@ angular.module('docs').controller('FileModalView', function ($uibModalInstance, 
     _.each(files, function (value) {
       if (value.id === $stateParams.fileId) {
         $scope.file = value;
-        // if (value.mimetype === 'application/pdf'){
         $scope.trustedFileUrl = $sce.trustAsResourceUrl('../api/file/' + $stateParams.fileId + '/data');
-        // }
-        // if (value.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-        //   console.log(window.location.origin);
-        //   console.log($stateParams.fileId);
-        //   $scope.trustedDocxUrl = $sce.trustAsResourceUrl('../api/file/' + $stateParams.fileId + '/data?size=web');
-        // }
       }
     });
   };

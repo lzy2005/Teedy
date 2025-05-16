@@ -794,7 +794,7 @@ public class DocumentResource extends BaseResource {
             @FormParam("relations") List<String> relationList,
             @FormParam("metadata_id") List<String> metadataIdList,
             @FormParam("metadata_value") List<String> metadataValueList,
-            @FormParam("language") String language,
+            @FormParam("language") String language,//TODO2
             @FormParam("create_date") String createDateStr) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
@@ -828,7 +828,7 @@ public class DocumentResource extends BaseResource {
         Document document = documentDao.getById(id);
         if (document == null) {
             throw new NotFoundException();
-        }
+        }//TODO2
 
         // Update the document
         document.setTitle(title);

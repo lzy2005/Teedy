@@ -437,7 +437,7 @@ public class FileResource extends BaseResource {
                 .add("files", files);
 
         return Response.ok().entity(response.build()).build();
-    }
+    }//TODO2: Find the file name and type
 
     /**
      * List all versions of a file.

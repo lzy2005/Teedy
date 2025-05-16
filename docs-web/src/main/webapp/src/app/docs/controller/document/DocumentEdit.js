@@ -23,6 +23,11 @@ angular.module('docs').controller('DocumentEdit', function($rootScope, $scope, $
     $scope.alerts.splice(index, 1);
   };
 
+  // Load files
+  Restangular.one('file/list').get({ id: $stateParams.id }).then(function (data) {
+    $scope.files = data.files;
+  });
+
   /**
    * Returns a promise for typeahead title.
    */
@@ -90,12 +95,14 @@ angular.module('docs').controller('DocumentEdit', function($rootScope, $scope, $
   $scope.edit = function() {
     var promise = null;
     var document = angular.copy($scope.document);
-    
+    console.log($scope.document);
+    console.log($scope.txtContent);
+
     // Transform date to timestamp
     if (document.create_date instanceof Date) {
       document.create_date = document.create_date.getTime();
     }
-    
+
     // Extract ids from tags
     document.tags = _.pluck(document.tags, 'id');
 
@@ -106,14 +113,22 @@ angular.module('docs').controller('DocumentEdit', function($rootScope, $scope, $
     var metadata = _.reject(document.metadata, function (meta) {
       return _.isUndefined(meta.value) || meta.value === '' || meta.value == null;
     });
-    document.metadata_id =  _.pluck(metadata, 'id');
-    document.metadata_value =  _.pluck(metadata, 'value');
+    document.metadata_id = _.pluck(metadata, 'id');
+    document.metadata_value = _.pluck(metadata, 'value');
     document.metadata_value = _.map(document.metadata_value, function (val) {
       if (val instanceof Date) {
         return val.getTime();
       }
       return val;
     });
+
+    // Construct a new file using txtContent and original file name
+    if ($scope.txtContent && $scope.file) {
+      var newFile = new Blob([$scope.txtContent], { type: $scope.file.mimetype });
+      newFile.name = $scope.file.name;
+      $scope.newFiles = [newFile];
+      Restangular.one('file/' + $scope.file.id).remove();
+    }//TODO2: Delete the file
 
     // Send to server
     if ($scope.isEdit()) {
@@ -131,11 +146,11 @@ angular.module('docs').controller('DocumentEdit', function($rootScope, $scope, $
       $scope.orphanFiles = [];
       return $q.all(promises);
     };
-    
+
     // Upload files after edition
     promise.then(function(data) {
       $scope.fileProgress = 0;
-      
+
       // When all files upload are over, attach orphan files and move on
       var navigateNext = function() {
         attachOrphanFiles(data).then(function() {
@@ -150,7 +165,7 @@ angular.module('docs').controller('DocumentEdit', function($rootScope, $scope, $
       } else {
         $scope.fileIsUploading = true;
         $rootScope.pageTitle = '0% - ' + $rootScope.appName;
-        
+
         // Send a file from the input file array and return a promise
         var sendFile = function(key) {
           var deferred = $q.defer();
@@ -214,7 +229,7 @@ angular.module('docs').controller('DocumentEdit', function($rootScope, $scope, $
 
           return deferred.promise;
         };
-        
+
         // Upload files sequentially
         var key = 0;
         var then = function() {
@@ -259,15 +274,29 @@ angular.module('docs').controller('DocumentEdit', function($rootScope, $scope, $
   };
 
   /**
+ * Get the file name.
+ */
+  $scope.loadFileName = function (file_id) {
+    // Search current file
+    console.log($scope.files);
+    _.each($scope.files, function (value) {
+      if (value.id === file_id) {
+        $scope.file = value;
+      }
+    });
+  };
+
+  /**
    * In edit mode, load the current document.
    */
   if ($scope.isEdit()) {
     Restangular.one('document', $stateParams.id).get().then(function(data) {
       $scope.document = data;
       $scope.loadContent(data.file_id);
+      $scope.loadFileName(data.file_id);
     });
   } else {
-    $scope.resetForm();
+      $scope.resetForm();
   }
 
   // Load vocabularies
