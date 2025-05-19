@@ -26,8 +26,9 @@ pipeline {
         stage('Building image') {
             steps {
                 script {
-                    // assume Dockerfile locate at root
-                    docker.build("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}")
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub_credentials') {
+                        docker.build("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}")
+                    }
                 }
             }
         }
@@ -42,7 +43,7 @@ pipeline {
                         docker.image("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}").push()
 
                         // ：optional: label latest
-                        docker.image("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}").push('latest')
+                        // docker.image("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}").push('latest')
                     }
                 }
             }
