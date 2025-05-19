@@ -54,7 +54,7 @@ pipeline {
             steps {
                 script {
                     // Define the ports and container names
-                    def ports = [8081, 8082, 8083]
+                    def ports = [8082, 8083, 8084]
                     def containerNames = ports.collect { port -> "teedy-container-${port}" }
 
                     // Stop and remove existing containers
