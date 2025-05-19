@@ -49,15 +49,26 @@ pipeline {
             }
         }
 
-        // Running Docker container
+        // Running Docker containers
         stage('Run containers') {
             steps {
                 script {
-                    // stop then remove containers if exists
-                    sh 'docker stop teedy-container-8081 || true'
-                    sh 'docker rm teedy-container-8081 || true'
-                    // run Container
-                    docker.image("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}").run('--name teedy-container-8081 -d -p 8081:8080')
+                    // Define the ports and container names
+                    def ports = [8081, 8082, 8083]
+                    def containerNames = ports.collect { port -> "teedy-container-${port}" }
+
+                    // Stop and remove existing containers
+                    containerNames.each { containerName ->
+                        sh "docker stop ${containerName} || true"
+                        sh "docker rm ${containerName} || true"
+                    }
+
+                    // Run containers
+                    ports.each { port ->
+                        docker.image("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}")
+                            .run("--name teedy-container-${port} -d -p ${port}:8080")
+                    }
+
                     // Optional: list all teedy-containers
                     sh 'docker ps --filter "name=teedy-container"'
                 }
